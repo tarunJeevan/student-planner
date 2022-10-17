@@ -53,3 +53,8 @@ body {
 #event-img:hover{
     cursor: pointer;
 }
+
+#eventelement{
+    padding-top:1.8em;
+    padding-left:1em;
+}
