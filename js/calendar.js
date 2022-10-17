@@ -59,3 +59,4 @@ function createNewEventDiv() {
     outerDiv.append(innerDiv);
     return outerDiv;
 }
+

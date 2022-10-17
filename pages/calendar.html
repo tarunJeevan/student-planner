@@ -17,13 +17,12 @@
     <script src="../js/calendar.js"></script>
 
     <script>
-      init();
+        init();
     </script>
 </head>
 <header class="d-flex flex-wrap justify-content-center border-bottom">
     <div class="container-fluid">
-        <a class="navbar-brand" href="./notebook.html">Logo</a>
-        <!-- After merging, change href to point to homepage.html -->
+        <a class="navbar-brand" href="./homepage.html">Logo</a>
     </div>
 </header>
 
@@ -50,11 +49,10 @@
 
     <!--Assignment Bar, left.-->
     <div id='external-events'>
-        <p id="par"><strong>Draggable Events</strong>
-        <img id="event-img" alt="add event button" src="../images/Img_Add_Notebook.png" onclick="appendEvent()" role="button" />
+        <p id="par">
+            <strong>Draggable Events</strong>
+            <img id="event-img" alt="add event button" src="../images/Img_Add_Notebook.png" onclick="appendEvent()" role="button" />
         </p>
-
-
         <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event'>
             <div id="eventelement" class='fc-event-main'>My Event 1</div>
         </div>
@@ -71,6 +69,7 @@
             <div id="eventelement" class='fc-event-main'>My Event 5</div>
         </div>           
     </div>
+    
     <!--Calendar-->
      <div id='calendar-container'>
          <div id='calendar'></div>
