@@ -1,13 +1,11 @@
+var Calendar;
+var Draggable = FullCalendar.Draggable;
+
 function init() {
     document.addEventListener('DOMContentLoaded',
         function () {
-
-            var Calendar = FullCalendar.Calendar;
-            var Draggable = FullCalendar.Draggable;
-
             var containerEl = document.getElementById('external-events');
             var calendarEl = document.getElementById('calendar');
-            var checkbox = document.getElementById('drop-remove');
 
             // initialize the external events
 
@@ -15,30 +13,36 @@ function init() {
                 itemSelector: '.fc-event',
                 eventData: function (eventEl) {
                     return {
-                        title: eventEl.innerText
+                        title: eventEl.innerText,
+                        editable: true,
+                        extendedProps:{
+                            completed: false
+                        }
                     };
                 }
             });
 
             //initialize calendar
-            var calendar = new FullCalendar.Calendar(calendarEl, {
+            Calendar = new FullCalendar.Calendar(calendarEl, {
                 headerToolbar: {
-                    left: 'prev, next today',
+                    left: 'prev next today',
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
                 editable: true,
                 droppable: true,
                 drop: function (info) {
+                },
+                eventClassNames: function (event, element) {
 
                 }
             });
-            calendar.render();
+
+            Calendar.render();
         });
 }
 
 function appendEvent() {
-    alert("test");
     var eventDiv = document.getElementById("external-events");
     eventDiv.append(createNewEventDiv());
     return false;
@@ -56,4 +60,13 @@ function createNewEventDiv() {
 
     outerDiv.append(innerDiv);
     return outerDiv;
+}
+
+function removeEvent() {
+    const array = Calendar.getEvents();
+    const classList = ['completed']
+    for (let i = 0; i < array.length; i++) {
+            console.log(array[i].classNames);
+            array[i].setExtendedProps(completed,true);
+    }
 }
