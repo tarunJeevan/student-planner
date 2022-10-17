@@ -61,4 +61,5 @@ body {
 
 .completed{
     text-decoration: line-through;
+    height:300px;
 }

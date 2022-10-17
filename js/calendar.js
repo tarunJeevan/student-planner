@@ -17,7 +17,8 @@ function init() {
                         editable: true,
                         extendedProps:{
                             completed: false
-                        }
+                        },
+                        classNames:[]
                     };
                 }
             });
@@ -32,9 +33,6 @@ function init() {
                 editable: true,
                 droppable: true,
                 drop: function (info) {
-                },
-                eventClassNames: function (event, element) {
-
                 }
             });
 
@@ -60,13 +58,4 @@ function createNewEventDiv() {
 
     outerDiv.append(innerDiv);
     return outerDiv;
-}
-
-function removeEvent() {
-    const array = Calendar.getEvents();
-    const classList = ['completed']
-    for (let i = 0; i < array.length; i++) {
-            console.log(array[i].classNames);
-            array[i].setExtendedProps(completed,true);
-    }
 }
