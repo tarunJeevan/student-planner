@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notebook</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/notebook.css" rel="stylesheet">
+    <link href="../css/navbar.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/notebook.js"></script>
+</head>
+
+<body>
+    <header class="d-flex flex-wrap justify-content-center border-bottom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="./notebook.html">Logo</a>
+            <!-- After merging, change href to point to homepage.html -->
+        </div>
+    </header>
+
+    <!-- Main navigation bar with links to Calendar, Settings, etc -->
+    <nav class="navbar navbar-expand-sm bg-primary navbar-dark" id="main_navbar">
+        <div class="container-fluid">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="./homepage.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="./calendar.html">Calendar</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="./notebook.html">Notebooks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="./settings.html"">Settings</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main content of Notebook page. Contains all Notebooks and their respective Notes -->
+    <div class="row">
+        <div class="col-sm-4 list-group list-group-flush" id="nav_notebooks">
+            <div id="collection" class="list-group-item list-group-item-success">
+                <b>Notebooks</b>
+                <img id="add_img" src="../Images/Img_Add_Notebook.png" alt="Add Notebook" role="button" onclick="addNotebook()"/>
+            </div>
+                        
+            <a id="notebook" class="list-group-item list-group-item-action">Note 1</a>            
+            <!-- Each notebook needs an onclick="showNotebook()" -->
+                            
+        </div>
+
+        <div class="col-sm-8" id="notebook_details">
+            <div class="container-fluid ">
+                <!-- Use flexbox for the different Notes -->
+                <div id="stand-in"><b>Notebook Display</b></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add footer? -->
+</body>
+
+</html>

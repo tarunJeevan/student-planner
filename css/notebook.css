@@ -1,0 +1,24 @@
+header, nav, .row {
+    margin: 10px;
+}
+
+#add_img {
+    height: 100%;
+    width: 6%;
+    float: right;
+}
+
+#collection, #collection:hover {
+    color: rgb(59, 86, 237);
+}
+
+#notebook_details {
+    height: 500px; /* Change height property to percentage after putting things in it */
+    background-color: rgb(219, 219, 219);
+}
+
+#stand-in {
+    text-align: center;
+    text-decoration: underline;
+    padding-top: 1%;
+}
