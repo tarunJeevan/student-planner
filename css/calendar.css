@@ -59,3 +59,20 @@ body {
     padding-left:1em;
 }
 
+.completed *{
+    text-decoration: line-through;
+}
+
+.contextMenu{
+    color: black;
+    position:relative;
+}
+
+.contextMenu *{
+    background-color:aqua;
+    border:0.1em;
+    border-style: solid;
+    border-radius:1em;
+    border-color:black;
+    text-align: center;
+}
