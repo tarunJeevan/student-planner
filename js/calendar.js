@@ -140,14 +140,6 @@ function openContextMenu(menuName) {
     }
 }
 
-function calendarMenu(info) {
-    let element = document.elementFromPoint(info.jsEvent.clientX, info.jsEvent.clientY)
-      if (element.classList.contains("fc-event-title")) {
-        element = element.parentElement
-    }
-
-
-
 function getMenuInfo(menuName){
     const menu = {
         numItems: 0,
@@ -157,6 +149,7 @@ function getMenuInfo(menuName){
         functionNames: [],
         useParent: function(elem){return false}
     }
+
     switch(menuName){
         case calendar:
             menu.numItems = 2
