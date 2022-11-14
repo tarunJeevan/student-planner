@@ -8,11 +8,12 @@ let app = express()
 
 app.use(express.static(path.join(__dirname, "./")))
 app.use(bodyParser.text())
+let authenticated = true;
 
 app.get('/', (req, res) => {
 
     if (//not authenticated
-        false) {
+        !authenticated) {
         res.status(200).sendFile(path.join(__dirname, "/pages/login.html"))
     } //authenticated
     else {
@@ -34,7 +35,8 @@ app.get('/signup', (req, res) => {
 
 app.get('/signout', (req, res) => {
     //unauthenticate
-    res.status(200).sendFile(path.join(__dirname, "/pages/login.html"))
+    authenticated = false
+    res.status(200).redirect("/")
 })
 
 app.post('/', (req, res) => {
