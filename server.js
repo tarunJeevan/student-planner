@@ -6,7 +6,7 @@ const { reset } = require('nodemon');
 
 let app = express()
 
-app.use(express.static(path.join(__dirname, "\\public")))
+app.use(express.static(path.join(__dirname, "./")))
 app.use(bodyParser.text())
 
 app.get('/', (req, res) => {
@@ -16,12 +16,29 @@ app.get('/', (req, res) => {
         res.status(200).sendFile(path.join(__dirname, "/pages/login.html"))
     } //authenticated
     else {
-        res.status(200).sendFile(path.join(__dirname, "/pages/homepage.html"))
+        res.status(200).sendFile(path.join(__dirname, "/pages/dashboard.html"))
     }
 })
 
 app.get('/calendar', (req, res) => {
-    res.status(200).sendFile(path.join(__dirname, "\\public\\calendar.html"))
+    res.status(200).sendFile(path.join(__dirname, "/pages/calendar.html"))
+})
+
+app.get('/notes', (req, res) => {
+    res.status(200).sendFile(path.join(__dirname, "/pages/notebook.html"))
+})
+
+app.get('/signup', (req, res) => {
+    res.status(200).sendFile(path.join(__dirname, "/pages/signup.html"))
+})
+
+app.get('/signout', (req, res) => {
+    //unauthenticate
+    res.status(200).sendFile(path.join(__dirname, "/pages/login.html"))
+})
+
+app.post('/', (req, res) => {
+
 })
 
 app.listen(8080)
