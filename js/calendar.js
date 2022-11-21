@@ -1,8 +1,12 @@
-var Calendar
-var Draggable = FullCalendar.Draggable
-var numClick = 0
+let Calendar
+let Draggable = FullCalendar.Draggable
+let elementClicked
 
 function init() {
+    document.addEventListener('mousemove', e => {
+       elementClicked = e
+    })
+
     document.addEventListener('DOMContentLoaded',
         function () {
             var containerEl = document.getElementById('external-events')
@@ -38,7 +42,7 @@ function init() {
                 },
                 eventClick: function (info) {
                     info.jsEvent.preventDefault()
-                    openCalendarMenu(info)
+                    calendarMenu(info)
                 }
             })
 
@@ -66,60 +70,11 @@ function createNewEventDiv() {
     return outerDiv
 }
 
-function openCalendarMenu(info) {
-    element = document.elementFromPoint(info.jsEvent.pageX, info.jsEvent.pageY)
-
-    if (element.classList.contains("fc-event-title")) {
-        element = element.parentElement
-    }
-
-    if (!element.classList.contains("menuEnabled") && !element.classList.contains("menuItem")) {
-
-        element.classList.add("menuEnabled")
-
-        let main = document.createElement('div')
-        let pcom = document.createElement('div')
-        let pdel = document.createElement('div')
-        let canc = document.createElement('div')
-
-        main.classList.add("contextMenu")
-        pdel.classList.add("menuItem")
-        pcom.classList.add("menuItem")
-        canc.classList.add("menuItems")
-        canc.classList.add("menuItem-close")
-        
-        pdel.innerText = "Delete"
-        pcom.innerText = "Complete"
-        canc.innerText = "Close"
-
-        pdel.addEventListener('click', function () {
-            deleteEvent(info, element)
-            removeEventMenu(main)
-        })
-
-        pcom.addEventListener('click', function () {
-            completeEvent(info, element)
-            removeEventMenu(main)
-        })
-
-        canc.addEventListener('click', function () {
-            removeEventMenu(main)
-        })
-
-        main.append(pcom)
-        main.append(pdel)
-        main.append(canc)
-
-        element.append(main)
-    }
-}
-
 function completeEvent(info, element) {
 
     if (!info.event.classNames.includes("completed")) {
         info.event.setProp("classNames", info.event.classNames.concat(['completed']))
     }
-    console.log(info.event.classNames)
     return false
 }
 
@@ -137,4 +92,90 @@ function removeEventMenu(element) {
 
     element.parentElement.classList.remove("menuEnabled")
     element.remove()
+}
+
+function openContextMenu(menuName) {
+    let element = document.elementFromPoint(elementClicked.clientX, elementClicked.clientY)
+    let menu = getMenuInfo()
+
+    element = element.parentElement
+    
+    if (!element.classList.contains("menuEnabled") && !element.classList.contains("menuItem")) {
+
+        element.classList.add("menuEnabled")
+
+        let main = document.createElement('div')
+        let pcom = document.createElement('div')
+        let pdel = document.createElement('div')
+        let canc = document.createElement('div')
+
+        main.classList.add("contextMenu")
+        pdel.classList.add("menuItem")
+        pcom.classList.add("menuItem")
+        canc.classList.add("menuItem")
+        canc.classList.add("menuItem-close")
+        
+        pdel.innerText = "New Note"
+        pcom.innerText = "Existing Note"
+        canc.innerText = "Close"
+
+        pdel.addEventListener('click', function () {
+        
+        })
+
+        pcom.addEventListener('click', function () {
+
+        })
+
+        canc.addEventListener('click', function () {
+            removeEventMenu(main)
+        })
+
+        main.append(pcom)
+        main.append(pdel)
+        main.append(canc)
+
+        element.append(main)
+        console.log("done")
+    }
+}
+
+function getMenuInfo(menuName){
+    const menu = {
+        numItems: 0,
+        numClassNames: 0,
+        itemNames: [],
+        className: [],
+        functionNames: [],
+        useParent: function(elem){return false}
+    }
+
+    switch(menuName){
+        case calendar:
+            menu.numItems = 2
+            menu.numClassNames = 0
+            menu.itemNames = ["Complete", "Delete"]
+            menu.functionNames = [completeEvent(), deleteEvent()]
+            menu.useParent = function(elem){
+                if (elem.classList.contains("fc-event-title")) {
+                    return true
+                }
+
+                return false
+            }
+            break;
+        case eventAdd:
+            menu.numItems = 2
+            menu.numClassNames = 1
+            menu.itemNames = ["addNewEvent", "addExistingEvent"]
+            menu.classNames = ["addEventMenu"]
+            menu.functionNames = [addNewEvent(), addExistingEvent()]
+            menu.useParent = function(elem){return true}
+            break;
+        case eventRemove:
+
+            break;
+    }
+
+    return menu
 }
