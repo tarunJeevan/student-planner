@@ -61,8 +61,8 @@ app.post('/signUp', (req, res) => {
 //finds user by username/email and checks password against what is stored in db, responds with user token, pass this token into other requests to ensure user is logged in
 app.post('/login', (req, res) => {
     //console.log(req.body);
-    let userName = req.body.user;
-    let pw = req.body.pass;
+    const userName = req.body.user;
+    const pw = req.body.pass;
     const now = moment()
     //do validation here
     //lookup user by userName
@@ -120,8 +120,8 @@ function isAuthenticated(user){
         if(err) return false
         if(user.authenticated===1){
             //ensure the user was authenticated at most 1 hour ago
-            let authTime =moment(user.authenticateTime);
-            let now = moment()
+            const authTime =moment(user.authenticateTime);
+            const now = moment()
             if(now.isSameOrBefore(authTime.add(1,'h'))){
                 //if authenticated less than 1 hour ago, refresh authenticate time, then return true
                 user.authenticateTime = now
