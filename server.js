@@ -5,12 +5,16 @@ const { reset } = require('nodemon');
 const mongoose = require('mongoose');
 const{ Schema } = mongoose;
 
+mongoose.connect('mongodb+srv://alex:alex@cluster0.gr3zesx.mongodb.net/StudentPlanner')
 
-const userSchema = new Schema({
-    userName: String,
-    email: String,
-    password: String
-})
+//model for 'LoginInfo' table
+var userModel = mongoose.model('LoginInfo', new Schema({
+   userName: String,
+   password: String,
+   email: String,
+   authenticated: Number,
+   authenticateTime: String
+}), 'LoginInfo');
 
 let app = express()
 
@@ -31,36 +35,52 @@ app.get('/', (req, res) => {
 
 //create user in database from request data
 app.post('/signUp', (req, res) => {
-    //randomly generate an 8 digit login token
-    let token = []
-    for(let i=0;i<8;i++){
-        token.push(Math.floor(Math.random()*10))
-    }
-    token = token.join('');
     //create user object
     //storing the password as plain text is bad for security, but i'm going to do it anyway
     let user = {}
     user.userName = req.body.user;
-    user.pass = req.body.pass;
+    user.password = req.body.pass;
     user.email = req.body.email;
-    user.token = '';
+    user.authenticated = 0;
+    user.authenticateTime = '';
+    userModel.find({'userName': req.body.user}, function(err, data){
+        if(err) return
+        if(data.length===0){
+            userModel.create(user)
+            res.status(200).redirect("/")
+        }
+        else{
+            res.status(200).send("User already exists");
+        }
+    })
     console.log(user);
     
 })
 
 //finds user by username/email and checks password against what is stored in db, responds with user token, pass this token into other requests to ensure user is logged in
 app.post('/login', (req, res) => {
-    console.log(req.body);
+    //console.log(req.body);
     let userName = req.body.user;
     let pw = req.body.pass;
+    const now = new Date()
     //do validation here
     //lookup user by userName
-
-    //compare password given to password in database
-
-    //if they match, return user id and redirect to home page
-
-    //else return null
+    userModel.findOne({'userName':userName},function(err, user){
+        if (err) return
+        var id = user._id
+        if(pw === user.password){
+            authenticated = true;
+            user.authenticated = 1;
+            user.authenticateTime = now
+            user.save();
+            res.status(200).redirect("/")
+            
+        }
+        else{
+            console.log('incorrect password')
+            res.status(401).send("Incorrect Password");
+        }
+    })
 })
 
 app.get('/calendar', (req, res) => {
