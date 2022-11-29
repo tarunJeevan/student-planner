@@ -5,7 +5,7 @@ const { reset } = require('nodemon');
 const mongoose = require('mongoose');
 const{ Schema } = mongoose;
 
-mongoose.connect('mongodb+srv://alex:alex@cluster0.gr3zesx.mongodb.net/StudentPlanner')
+mongoose.connect('')
 
 //model for 'LoginInfo' table
 var userModel = mongoose.model('LoginInfo', new Schema({
