@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const{ Schema } = mongoose;
 const moment = require('moment');
 
-mongoose.connect('mongodb+srv://alex:alex@cluster0.gr3zesx.mongodb.net/StudentPlanner')
+mongoose.connect('')
 
 //model for 'LoginInfo' table
 var userModel = mongoose.model('LoginInfo', new Schema({
@@ -135,5 +135,6 @@ function isAuthenticated(user){
         }
     })
 }
+
 
 app.listen(8080)
