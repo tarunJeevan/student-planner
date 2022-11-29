@@ -4,6 +4,7 @@ const path = require('path')
 const { reset } = require('nodemon');
 const mongoose = require('mongoose');
 const{ Schema } = mongoose;
+const moment = require('moment');
 
 mongoose.connect('mongodb+srv://alex:alex@cluster0.gr3zesx.mongodb.net/StudentPlanner')
 
@@ -62,17 +63,17 @@ app.post('/login', (req, res) => {
     //console.log(req.body);
     let userName = req.body.user;
     let pw = req.body.pass;
-    const now = new Date()
+    const now = moment()
     //do validation here
     //lookup user by userName
     userModel.findOne({'userName':userName},function(err, user){
         if (err) return
-        var id = user._id
         if(pw === user.password){
             authenticated = true;
             user.authenticated = 1;
             user.authenticateTime = now
             user.save();
+            isAuthenticated(user.userName)
             res.status(200).redirect("/")
             
         }
@@ -113,5 +114,26 @@ app.get('/signout', (req, res) => {
 app.post('/', (req, res) => {
 
 })
+
+function isAuthenticated(user){
+    userModel.findOne({'userName':user}, function(err,user){
+        if(err) return false
+        if(user.authenticated===1){
+            //ensure the user was authenticated at most 1 hour ago
+            let authTime =moment(user.authenticateTime);
+            let now = moment()
+            if(now.isSameOrBefore(authTime.add(1,'h'))){
+                //if authenticated less than 1 hour ago, refresh authenticate time, then return true
+                user.authenticateTime = now
+                user.save()
+                return true
+            }
+            return false
+        }
+        else{
+            return false
+        }
+    })
+}
 
 app.listen(8080)
