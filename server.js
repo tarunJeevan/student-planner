@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const{ Schema } = mongoose;
 const moment = require('moment');
 
-mongoose.connect('')
+mongoose.connect('mongodb+srv://alex:alex@cluster0.gr3zesx.mongodb.net/StudentPlanner')
 
 //model for 'LoginInfo' table
 var userModel = mongoose.model('LoginInfo', new Schema({
@@ -25,30 +25,42 @@ app.use(bodyParser.urlencoded({ extended: false }))
 let authenticated = true;
 
 app.get('/', (req, res) => {
+    res.status(200).sendFile(path.join(__dirname, "/pages/login.html"))
+})
 
-    if (authenticated) {
-        res.status(200).sendFile(path.join(__dirname, "/pages/dashboard.html"))
-    }
-    else {
-        res.status(200).sendFile(path.join(__dirname, "/pages/login.html"))
-    }
+app.get('/:userName', (req, res) => {
+console.log(req.params.userName)
+    new Promise((resolve, reject)=> {
+        resolve(isAuthenticated(req.params.userName));
+    }).then((value)=>{
+        console.log(value)
+        if (value) {
+            res.status(200).sendFile(path.join(__dirname, "/pages/dashboard.html"))
+        }
+        else {
+            res.status(200).sendFile(path.join(__dirname, "/pages/login.html"))
+        }
+    })
+        
+        
 })
 
 //create user in database from request data
 app.post('/signUp', (req, res) => {
     //create user object
     //storing the password as plain text is bad for security, but i'm going to do it anyway
-    let user = {}
+    const user = {}
     user.userName = req.body.user;
     user.password = req.body.pass;
     user.email = req.body.email;
-    user.authenticated = 0;
-    user.authenticateTime = '';
+    user.authenticated = 1;
+    user.authenticateTime = moment();
+    const url = '/'+user.userName
     userModel.find({'userName': req.body.user}, function(err, data){
         if(err) return
         if(data.length===0){
             userModel.create(user)
-            res.status(200).redirect("/")
+            res.status(200).redirect(url)
         }
         else{
             res.status(200).send("User already exists");
@@ -73,8 +85,7 @@ app.post('/login', (req, res) => {
             user.authenticated = 1;
             user.authenticateTime = now
             user.save();
-            isAuthenticated(user.userName)
-            res.status(200).redirect("/")
+            res.status(200).redirect("/"+userName)
             
         }
         else{
@@ -115,25 +126,25 @@ app.post('/', (req, res) => {
 
 })
 
-function isAuthenticated(user){
-    userModel.findOne({'userName':user}, function(err,user){
-        if(err) return false
-        if(user.authenticated===1){
-            //ensure the user was authenticated at most 1 hour ago
-            const authTime =moment(user.authenticateTime);
+//takes the user name then determines if the user is authenticated or not
+async function isAuthenticated(user){
+    let userData = await userModel.findOne({'userName':user})
+    console.log(userData); 
+    if(userData!=null){
+        if(userData.authenticated===1){
+            const authTime =moment(userData.authenticateTime);
             const now = moment()
             if(now.isSameOrBefore(authTime.add(1,'h'))){
-                //if authenticated less than 1 hour ago, refresh authenticate time, then return true
-                user.authenticateTime = now
-                user.save()
-                return true
+                userModel.findOne({'userName':user}, function(err, data){
+                    
+                })
+                //somehow need to refresh auth time here so the user isn't required to log back in after an hour
+                return true;
             }
-            return false
         }
-        else{
-            return false
-        }
-    })
+        return false
+    }
+    return false;
 }
 
 
