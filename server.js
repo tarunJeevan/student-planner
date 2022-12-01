@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
     res.status(200).sendFile(path.join(__dirname, "/pages/login.html"))
 })
 
-app.get('/:userName', (req, res) => {
+app.get('/dashboard/:userName', (req, res) => {
 console.log(req.params.userName)
     new Promise((resolve, reject)=> {
         resolve(isAuthenticated(req.params.userName));
@@ -59,11 +59,13 @@ app.post('/signUp', (req, res) => {
     userModel.find({'userName': req.body.user}, function(err, data){
         if(err) return
         if(data.length===0){
+            console.log('user does not exist')
             userModel.create(user)
-            res.status(200).redirect(url)
+            res.status(200).send(user.userName)
         }
         else{
-            res.status(200).send("User already exists");
+            console.log('user exists')
+            res.status(401).send("User already exists");
         }
     })
     console.log(user);
@@ -81,16 +83,18 @@ app.post('/login', (req, res) => {
     userModel.findOne({'userName':userName},function(err, user){
         if (err) return
         if(pw === user.password){
+
             authenticated = true;
             user.authenticated = 1;
             user.authenticateTime = now
             user.save();
-            res.status(200).redirect("/"+userName)
+            res.status(200).send(userName);
+            console.log(userName)
             
         }
         else{
             console.log('incorrect password')
-            res.status(401).send("Incorrect Password");
+            res.status(401).send('incorrect password');
         }
     })
 })
@@ -113,6 +117,7 @@ app.get('/notes', (req, res) => {
 })
 
 app.get('/signup', (req, res) => {
+    console.log('signup endpoint hit')
     res.status(200).sendFile(path.join(__dirname, "/pages/signup.html"))
 })
 
