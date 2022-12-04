@@ -165,7 +165,7 @@ app.post('/deleteevent', (req, res) => {
     eventModel.collection.findOneAndDelete({"username":request.username, "title":request.title})
 })
 
-app.get('/calendar/:user', (req, res) => {
+app.get('/calendar', (req, res) => {
 
     new Promise((resolve, reject)=> {
         resolve(isAuthenticated(req.params.user));
@@ -180,7 +180,7 @@ app.get('/calendar/:user', (req, res) => {
     })
 })
 
-app.get('/notes/:user', (req, res) => {
+app.get('/notes', (req, res) => {
 
     new Promise((resolve, reject)=> {
         resolve(isAuthenticated(req.params.user));
