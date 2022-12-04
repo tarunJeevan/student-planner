@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/dashboard/:userName', (req, res) => {
-console.log(req.params.userName)
+
     new Promise((resolve, reject)=> {
         resolve(isAuthenticated(req.params.userName));
     }).then((value)=>{
@@ -99,21 +99,34 @@ app.post('/login', (req, res) => {
     })
 })
 
-app.get('/calendar', (req, res) => {
+app.get('/calendar/:user', (req, res) => {
 
-    if (authenticated) {
-        res.status(200).sendFile(path.join(__dirname, "/pages/calendar.html"))
-    } else {
-        res.status(200).redirect("/")
-    }
+    new Promise((resolve, reject)=> {
+        resolve(isAuthenticated(req.params.user));
+    }).then((value)=>{
+        console.log(value)
+        if (value) {
+            res.status(200).sendFile(path.join(__dirname, "/pages/calendar.html"))
+        }
+        else {
+            res.status(401).sendFile(path.join(__dirname, "/pages/login.html"))
+        }
+    })
 })
 
-app.get('/notes', (req, res) => {
-    if (authenticated) {
-        res.status(200).sendFile(path.join(__dirname, "/pages/notebook.html"))
-    } else {
-        res.status(200).redirect("/")
-    }
+app.get('/notes/:user', (req, res) => {
+
+    new Promise((resolve, reject)=> {
+        resolve(isAuthenticated(req.params.user));
+    }).then((value)=>{
+        console.log(value)
+        if (value) {
+            res.status(200).sendFile(path.join(__dirname, "/pages/notebook.html"))
+        }
+        else {
+            res.status(401).sendFile(path.join(__dirname, "/pages/login.html"))
+        }
+    })
 })
 
 app.get('/signup', (req, res) => {
