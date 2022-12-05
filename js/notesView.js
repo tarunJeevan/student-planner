@@ -17,7 +17,7 @@ export default class NotesView {
         this.root.innerHTML = `
             <div class="col-sm-4 list-group list-group-flush notes-sidebar" id="nav_notebooks">
                 <div id="collection" class="list-group-item list-group-item-success">
-                    <b>Notebooks</b>
+                    <b>Notes</b>
                     <button class="add-note" type="button">+</button>
                 </div>
 
@@ -59,8 +59,10 @@ export default class NotesView {
 
     _createListItemHTML(id, title, body, updated) { // Creates the HTML element for a new note
         const MAX_BODY_LENGTH = 60
+        // console.log(typeof body)
 
-        return `
+        if (body) {
+            return `
             <div class="notes-list-item" data-note-id="${id}">
                 <div class="note-small-title">${title}</div>
                 <div class="note-small-body">
@@ -72,10 +74,11 @@ export default class NotesView {
                 </div>
             </div>
         `
+        }
     }
 
     updateNoteList(notes) { // Updates sidebar containing all the notes
-        
+
         // Get div containing all notes
         const notesListContainer = this.root.querySelector(".notes-list")
 
@@ -83,26 +86,30 @@ export default class NotesView {
         notesListContainer.innerHTML = ""
 
         // Insert HTML for notes
-        for (const note of notes) {
-            const html = this._createListItemHTML(note.id, note.title, note.body, new Date(note.updated))
+        for (let i = 0; i < notes.length; i++) {
+            if (notes[i].body) {
+                const html = this._createListItemHTML(notes[i].id, notes[i].title, notes[i].body, new Date(notes[i].updated))
 
-            notesListContainer.insertAdjacentHTML("beforeend", html)
+                notesListContainer.insertAdjacentHTML("beforeend", html)
+            }
         }
 
         // Add select/delete events for each note
         notesListContainer.querySelectorAll(".notes-list-item").forEach(listItem => {
             try { // Same as above, this needs to be in a try/catch block for some reason
-                listItem.addEventListener("click", () => {
-                    this.onNoteSelect(listItem.dataset.noteId)
-                })
+                if (listItem.dataset.noteId) {
+                    listItem.addEventListener("click", () => {
+                        this.onNoteSelect(listItem.dataset.noteId)
+                    })
 
-                listItem.addEventListener("dblclick", () => {
-                    const deleteConf = confirm("Are you sure you want to delete this note?")
+                    listItem.addEventListener("dblclick", () => {
+                        const deleteConf = confirm("Are you sure you want to delete this note?")
 
-                    if (deleteConf) {
-                        this.onNoteDelete(listItem.dataset.noteId)
-                    }
-                })
+                        if (deleteConf) {
+                            this.onNoteDelete(listItem.dataset.noteId)
+                        }
+                    })
+                }
             } catch (err) {
                 console.log("NotesView updateNoteList Error: " + err) // Never gets called
             }
@@ -112,17 +119,20 @@ export default class NotesView {
 
     updateActiveNote(note) { // Sets the selected note as the active note
 
-        // Update note preview to display contents of the selected note
-        this.root.querySelector(".note-title").value = note.title
-        this.root.querySelector(".note-body").value = note.body
+        if (note.body) {
+            // Update note preview to display contents of the selected note
+            this.root.querySelector(".note-title").value = note.title
+            this.root.querySelector(".note-body").value = note.body
 
-        // Remove the 'selected item' styling from all notes
-        this.root.querySelectorAll(".notes-list-item").forEach(listItem => {
-            listItem.classList.remove("notes-list-item-selected")
-        })
-        
-        // Add the 'selected item' styling for the selected note
-        this.root.querySelector(`.notes-list-item[data-note-id="${note.id}"]`).classList.add("notes-list-item-selected")
+            // Remove the 'selected item' styling from all notes
+            this.root.querySelectorAll(".notes-list-item").forEach(listItem => {
+                listItem.classList.remove("notes-list-item-selected")
+            })
+
+            // Add the 'selected item' styling for the selected note
+            this.root.querySelector(`.notes-list-item[data-note-id="${note.id}"]`).classList.add("notes-list-item-selected")
+        }
+
     }
 
     updateNotePreviewVisibility(visible) { // Sets the visibility of the notes editor/preview

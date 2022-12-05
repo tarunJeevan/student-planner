@@ -7,6 +7,18 @@ const { Schema } = mongoose;
 const moment = require('moment');
 const dotenv = require('dotenv').config({ path: path.join(__dirname, '.env') });
 
+
+// Schema for Notes
+const noteSchema = new mongoose.Schema({
+    username: String,
+    id: Number,
+    title: String,
+    body: String,
+    updated: Date
+})
+
+// Model for 'LoginInfo' table
+var userModel = mongoose.model('LoginInfo', new Schema({
 mongoose.connect(process.env.DATABASE)
 
 //model for 'LoginInfo' table
@@ -17,6 +29,9 @@ const userModel = mongoose.model('LoginInfo', new Schema({
     authenticated: Number,
     authenticateTime: String
 }), 'LoginInfo');
+
+
+const NotesM = mongoose.model('Notes', noteSchema)
 
 
 const eventModel = mongoose.model('Events', new Schema({
@@ -36,6 +51,7 @@ const notesModel = mongoose.model('notes', new Schema({
     body: String,
     updated: Date,
 }), 'notes');
+
 
 
 let app = express()
@@ -84,9 +100,54 @@ app.post('/signUp', (req, res) => {
             res.status(200).send(user.userName)
         }
         else {
-            res.status(401).send("User already exists");
+                    res.status(401).send("User already exists");
         }
     })
+})
+
+// Retrieve list of notes from the DB and return to page
+app.get('/get_notes', async function (req, res) {
+    // Get all notes in the database then send them back
+    res.status(200).send(await getNotes())
+})
+
+function getNotes() { // Helper function to get all notes stored in the database
+    const notes = NotesM.find()
+    return notes
+}
+
+// Get list of notes from page and save to DB
+app.post('/save_note', async function (req, res) {
+    // Save posted info into new Note
+    const note = JSON.parse(req.body)
+
+    // Check if note exists in collection. Update if it exists and add to collection if it doesn't
+    const existingNote = await NotesM.findOne({id: note.id})
+    if (existingNote) { // Note already exists
+        
+        existingNote.title = note.title
+        existingNote.body = note.body
+        existingNote.updated = note.updated
+        await existingNote.save()
+    } else { // Create new note
+        
+        const newNote = await NotesM.create({
+            id: note.id,
+            title: note.title,
+            body: note.body,
+            updated: note.updated
+        })
+    }
+
+    res.status(200).send("Note created!")
+})
+
+app.post('/delete_note', async function (req, res) {
+    
+    const note = JSON.parse(req.body)
+    const conf = await NotesM.findOneAndDelete({id: note.id})
+    
+    res.status(200).send("Note deleted!")
 })
 
 //finds user by username/email and checks password against what is stored in db, responds with user token, pass this token into other requests to ensure user is logged in
@@ -104,11 +165,13 @@ app.post('/login', (req, res) => {
             user.authenticated = 1;
             user.authenticateTime = now
             user.save();
+
             res.status(200).send(userName);
 
         }
         else {
             res.status(401).send('incorrect password');
+
         }
     })
 })
@@ -236,6 +299,7 @@ app.get('/signout', (req, res) => {
 app.post('/', (req, res) => {
 
 })
+
 
 //takes the user name then determines if the user is authenticated or not
 async function isAuthenticated(user) {
