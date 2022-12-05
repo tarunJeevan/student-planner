@@ -339,7 +339,6 @@ function deleteEventFromDB() {
     xhttp.send(JSON.stringify(event))
 
     alert("Event Deleted")
-    location.reload()
 }
 
 function createNewNote(noteName) {
