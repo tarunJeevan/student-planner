@@ -323,3 +323,5 @@ async function isAuthenticated(user) {
 
 
 app.listen(8080)
+
+module.exports = app
