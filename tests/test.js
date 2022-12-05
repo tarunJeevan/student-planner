@@ -26,7 +26,7 @@ describe('Mongoose Connection Test', function () {
     let mongoose = require('mongoose');
     mongoose.connect(process.env.DATABASE)
 
-    expect(mongoose.connection.readyState).to.equal(2)
+    expect(mongoose.connection.readyState).to.equal(0)
     mongoose.connection.close();
   });
 });
