@@ -134,16 +134,8 @@ function appendEvent() {
 function createNewEventDiv(name, isNote) {
     let outerDiv = document.createElement('div')
     let innerDiv = document.createElement('div')
-    let image = document.createElement('img')
     let noteName = name
     let noteimage = document.createElement('img')
-
-    image.classList = "option-img"
-    image.alt = "remove event button"
-    image.src = "../images/redx.png"
-    image.addEventListener('click', function () {
-        removeContextMenu(image.parentElement)
-    })
 
     if (isNote) {
         noteimage.classList = "option-img notes-img"
@@ -157,7 +149,6 @@ function createNewEventDiv(name, isNote) {
     outerDiv.className = "fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event"
 
     outerDiv.append(innerDiv)
-    outerDiv.append(image)
     if (isNote) outerDiv.append(noteimage)
 
     return outerDiv
@@ -297,53 +288,58 @@ function createNewEvent(atitle, astart, aend, aisnote) {
 }
 
 function deleteEventFromDB(noteName) {
-    const selector = document.getElementById("add-event-menu")
-    const eventList = Calendar.getEvents()
-    let atitle = ""
-    let notesIndex = 0;
+    new Promise((resolve) => {
+        resolve();
+        const selector = document.getElementById("add-event-menu")
+        const eventList = Calendar.getEvents()
+        let atitle = ""
+        let notesIndex = 0;
 
-    if(noteName){
-        atitle = noteName
+        if (noteName) {
+            atitle = noteName
+            const event = {
+                username: sessionStorage.getItem("planner-username"),
+                title: atitle
+            }
+
+            const xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "http://localhost:8080/deleteevent", true)
+            xhttp.send(JSON.stringify(event))
+            return
+        }
+
+        for (let i = 0; i < selector.length; i++) {
+            if (selector[i].value === "-2") {
+                notesIndex = i
+                break
+            }
+        }
+
+        if (!(selector[selector.selectedIndex].value === "-1" || selector[selector.selectedIndex].value === "-2" || selector[selector.selectedIndex].value === "-3" || selector[selector.selectedIndex].value === "-4") && selector.selectedIndex < notesIndex) {
+            atitle = String(selector[selector.selectedIndex].value)
+        } else {
+            alert("Can't delete because it's not an event!")
+            return
+        }
+
+        if (!confirm("Are you sure you want to delete this event permanently?")) return
+
+        let exists = eventExists(atitle)
+        if (exists) eventList[exists].remove
+
         const event = {
             username: sessionStorage.getItem("planner-username"),
             title: atitle
         }
-    
+
         const xhttp = new XMLHttpRequest();
         xhttp.open("POST", "http://localhost:8080/deleteevent", true)
         xhttp.send(JSON.stringify(event))
-        return
-    }
-    
-    for (let i = 0; i < selector.length; i++) {
-        if (selector[i].value === "-2") {
-            notesIndex = i
-            break
-        }
-    }
 
-    if (!(selector[selector.selectedIndex].value === "-1" || selector[selector.selectedIndex].value === "-2" || selector[selector.selectedIndex].value === "-3" || selector[selector.selectedIndex].value === "-4") && selector.selectedIndex < notesIndex) {
-        atitle = String(selector[selector.selectedIndex].value)
-    } else {
-        alert("Can't delete because it's not an event!")
-        return
-    }
-
-    if (!confirm("Are you sure you want to delete this event permanently?")) return
-
-    let exists = eventExists(atitle)
-    if (exists) eventList[exists].remove
-
-    const event = {
-        username: sessionStorage.getItem("planner-username"),
-        title: atitle
-    }
-
-    const xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "http://localhost:8080/deleteevent", true)
-    xhttp.send(JSON.stringify(event))
-
-    alert("Event Deleted")
+        alert("Event Deleted")
+    }).then(() => {
+        location.reload()
+    })
 }
 
 function createNewNote(noteName) {
@@ -406,12 +402,12 @@ function fillEventList() {
                     addMenuItem(selector, allEvents[i].title, false)
                     document.getElementById("external-events").append(createNewEventDiv(allEvents[i].title, false))
                 }
-                    Calendar.addEvent({
-                        title: allEvents[i].title,
-                        start: new Date(allEvents[i].start),
-                        end: new Date(allEvents[i].end),
-                        allDay: (new Date(allEvents[i].start).toTimeString() === new Date(allEvents[i].end).toTimeString())
-                    })
+                Calendar.addEvent({
+                    title: allEvents[i].title,
+                    start: new Date(allEvents[i].start),
+                    end: new Date(allEvents[i].end),
+                    allDay: (new Date(allEvents[i].start).toTimeString() === new Date(allEvents[i].end).toTimeString())
+                })
             }
         }
     }
