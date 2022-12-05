@@ -48,22 +48,22 @@ function init() {
                 timeZone: 'none',
                 //This detects when the user moves/extends an event in one of the view and updates it in the database
                 eventChange: function (info) {
-                    createNewEvent(info.event._def.title, info.event._instance.range.start, info.event._instance.range.end)
+                    createNewEvent(info.event._def.title, info.event._instance.range.start, info.event._instance.range.end, false)
                 },
                 //This detects when the user drops an event on to the calendar and makes a new entry into the database if it doesn't exist already
                 eventReceive: function (info) {
-                    createNewEvent(info.event._def.title, info.event._instance.range.start, info.event._instance.range.end)
+                    createNewEvent(info.event._def.title, info.event._instance.range.start, info.event._instance.range.end, false)
                 },
                 //This is to open the menu to delete/complete tasks
                 eventClick: function (info) {
                     info.jsEvent.preventDefault()
                     openContextMenu(info, "calendar")
                 },
-                drop: function(info){
+                drop: function (info) {
                     let exists = eventExists(info.innerText)
                     const allEvent = Calendar.getEvents()
 
-                    if(exists){
+                    if (exists) {
                         allEvent[exists].start = info.date
                         allEvent[exists].end = info.date
                     }
@@ -76,10 +76,10 @@ function init() {
 
 //Misc
 
-function eventExists(entry){
+function eventExists(entry) {
     const allEvents = Calendar.getEvents()
-    for(let i = 0; i < allEvents.length; i++){
-        if(allEvents[i].title === entry) return i
+    for (let i = 0; i < allEvents.length; i++) {
+        if (allEvents[i].title === entry) return i
     }
 
     return false
@@ -106,27 +106,28 @@ function appendEvent() {
     if (selector[selector.selectedIndex].value === "-2" || selector[selector.selectedIndex].value === "-3" || selector[selector.selectedIndex].value === "-4") return "";
     if (selector[selector.selectedIndex].value === "-1") {
         notename = prompt("Please enter a name for your new event.")
-        for(let j = 0; j < selector.length; j++) {if(selector[j] === notename) itemExists = true}
-        if(!itemExists) addMenuItem(selector, notename, document.getElementById("save-note-box").checked)
+        for (let j = 0; j < selector.length; j++) { if (selector[j] === notename) itemExists = true }
+        if (!itemExists) addMenuItem(selector, notename, document.getElementById("save-note-box").checked)
     }
 
     elements = document.getElementsByClassName('event-element')
-    for(let i = 0; i < elements.length; i++){
-        if(elements[i].innerText === notename) return
+    for (let i = 0; i < elements.length; i++) {
+        if (elements[i].innerText === notename) return
     }
 
-    if(document.getElementById("save-note-box").checked) createNewNote(notename)
+    if (document.getElementById("save-note-box").checked) createNewNote(notename)
 
-    for(let i = 0; i < selector.length; i++){
-        if(selector[i].value === "-2" ){
+    for (let i = 0; i < selector.length; i++) {
+        if (selector[i].value === "-2") {
             notesIndex = i
         }
 
-        if(notename === selector[i].value){
+        if (notename === selector[i].value) {
             addedIndex = i
         }
     }
 
+    createNewEvent(notename, "", "", (addedIndex > notesIndex))
     eventDiv.append(createNewEventDiv(notename, (addedIndex > notesIndex)))
 }
 
@@ -144,7 +145,7 @@ function createNewEventDiv(name, isNote) {
         removeContextMenu(image.parentElement)
     })
 
-    if(isNote){
+    if (isNote) {
         noteimage.classList = "option-img notes-img"
         noteimage.alt = "is note"
         noteimage.src = "../images/note-indicator.png"
@@ -157,16 +158,16 @@ function createNewEventDiv(name, isNote) {
 
     outerDiv.append(innerDiv)
     outerDiv.append(image)
-    if(isNote) outerDiv.append(noteimage)
+    if (isNote) outerDiv.append(noteimage)
 
     return outerDiv
 }
 
-function addMenuItem(option, noteName, checked){
+function addMenuItem(option, noteName, checked) {
     let newopt = document.createElement('option')
     let i = 0
-    for(; i < option.length; i++){
-        if(option[i].value === "-2") notesOption = i
+    for (; i < option.length; i++) {
+        if (option[i].value === "-2") notesOption = i
     }
     newopt.value = noteName
     newopt.append(document.createTextNode(noteName))
@@ -181,7 +182,7 @@ function addMenuItem(option, noteName, checked){
 
         option.insertBefore(newopt, child)
     }
-} 
+}
 
 //On Calendar interactions
 function removeContextMenu(element) {
@@ -287,12 +288,13 @@ function getMenuInfo(menuName, info) {
 }
 
 //Interact with database
-function createNewEvent(atitle, astart, aend) {
+function createNewEvent(atitle, astart, aend, aisnote) {
     const event = {
         username: sessionStorage.getItem("planner-username"),
         title: atitle,
         start: astart,
-        end: aend
+        end: aend,
+        isnote: aisnote
     }
 
     const xhttp = new XMLHttpRequest();
@@ -306,8 +308,8 @@ function deleteEventFromDB() {
     let atitle = ""
     let notesIndex = 0;
 
-    for(let i = 0; i < selector.length; i++){
-        if(selector[i].value === "-2" ){
+    for (let i = 0; i < selector.length; i++) {
+        if (selector[i].value === "-2") {
             notesIndex = i
             break
         }
@@ -315,17 +317,17 @@ function deleteEventFromDB() {
 
     console.log(notesIndex)
 
-    if(!(selector[selector.selectedIndex].value === "-1" || selector[selector.selectedIndex].value === "-2" || selector[selector.selectedIndex].value === "-3" || selector[selector.selectedIndex].value === "-4") && selector.selectedIndex < notesIndex){
+    if (!(selector[selector.selectedIndex].value === "-1" || selector[selector.selectedIndex].value === "-2" || selector[selector.selectedIndex].value === "-3" || selector[selector.selectedIndex].value === "-4") && selector.selectedIndex < notesIndex) {
         atitle = String(selector[selector.selectedIndex].value)
-    } else{
+    } else {
         alert("Can't delete because it's not an event!")
         return
     }
 
-    if(!confirm("Are you sure you want to delete this event permanently?")) return
+    if (!confirm("Are you sure you want to delete this event permanently?")) return
 
     let exists = eventExists(atitle)
-    if(exists) eventList[exists].remove
+    if (exists) eventList[exists].remove
 
     const event = {
         username: sessionStorage.getItem("planner-username"),
@@ -365,7 +367,7 @@ function fillNoteList() {
         if (xhttp.readyState === 4 && xhttp.status === 200) {
             allNotes = JSON.parse(xhttp.response)
             selector = document.getElementById("add-event-menu")
-            
+
             for (let i = 0; i < allNotes.length; i++) {
                 let option = document.createElement("option")
                 option.value = allNotes[i].title
@@ -385,18 +387,19 @@ function fillEventList() {
     let selector;
 
     const xhttp = new XMLHttpRequest();
-    
+
     xhttp.onreadystatechange = function () {
         if (xhttp.readyState === 4 && xhttp.status === 200) {
             allEvents = JSON.parse(xhttp.response)
             selector = document.getElementById("add-event-menu")
-            
+
             for (let i = 0; i < allEvents.length; i++) {
                 let option = document.createElement("option")
                 option.value = allEvents[i].title
                 option.text = allEvents[i].title
 
                 document.getElementById("external-events").append(createNewEventDiv(allEvents[i].title, false))
+                if (!allEvents[i].isNote) {
                 addMenuItem(selector, allEvents[i].title, false)
 
                 Calendar.addEvent({
@@ -406,9 +409,11 @@ function fillEventList() {
                     allDay: (new Date(allEvents[i].start).toTimeString() === new Date(allEvents[i].end).toTimeString())
                 })
             }
+            }
         }
     }
+}
 
-    xhttp.open("POST", "http://localhost:8080/fillevents", true)
-    xhttp.send(sessionStorage.getItem("planner-username"))
+xhttp.open("POST", "http://localhost:8080/fillevents", true)
+xhttp.send(sessionStorage.getItem("planner-username"))
 }

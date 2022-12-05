@@ -23,6 +23,7 @@ const eventModel = mongoose.model('Events', new Schema({
     title: String,
     start: String,
     end: String,
+    isNote: Boolean
 }), 'Events');
 
 
@@ -154,7 +155,8 @@ app.post('/createvent', (req, res) => {
             username: request.username,
             title: request.title,
             start: request.start,
-            end: request.end
+            end: request.end,
+            isNote: request.isnote
         })
     })
 })
@@ -166,7 +168,6 @@ app.post('/deleteevent', (req, res) => {
 })
 
 app.get('/calendar/:user', (req, res) => {
-
     new Promise((resolve, reject)=> {
         resolve(isAuthenticated(req.params.user));
     }).then((value)=>{
