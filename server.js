@@ -184,7 +184,7 @@ app.get('/eventsAmount/:user', (req, res) => {
         if (err) return
         let eventsLength = 0;
         for (let i = 0; i < data.length; i++) {
-            if (!data[i].isNote) length += 1
+            if (!data[i].isNote) eventsLength += 1
         }
         res.status(200).send(`${eventsLength}`)
     })
