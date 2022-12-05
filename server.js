@@ -119,8 +119,11 @@ app.get('/eventsAmount/:user', (req, res) => {
 
     eventModel.find({'username':username}, function(err, data){
         if (err) return
-
-        res.status(200).send(`${data.length}`)
+        let eventsLength = 0;
+        for(let i = 0; i < data.length; i++){
+            if(!data[i].isNote) length += 1
+        }
+        res.status(200).send(`${eventsLength}`)
     })
 })
 
@@ -130,7 +133,6 @@ app.get('/notesAmount/:user', (req, res) => {
     notesModel.find({'username':username}, function(err, data){
         if (err) return
 
-        console.log(data)
         res.status(200).send(`${data.length}`)
 
     })
@@ -198,7 +200,6 @@ app.get('/calendar/:user', (req, res) => {
     new Promise((resolve, reject)=> {
         resolve(isAuthenticated(req.params.user));
     }).then((value)=>{
-        console.log(value)
         if (value) {
             res.status(200).sendFile(path.join(__dirname, "/pages/calendar.html"))
         }
@@ -213,7 +214,6 @@ app.get('/notes/:user', (req, res) => {
     new Promise((resolve, reject)=> {
         resolve(isAuthenticated(req.params.user));
     }).then((value)=>{
-        console.log(value)
         if (value) {
             res.status(200).sendFile(path.join(__dirname, "/pages/notebook.html"))
         }
