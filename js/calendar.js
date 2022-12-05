@@ -349,7 +349,7 @@ function createNewNote(noteName) {
         username: sessionStorage.getItem("planner-username"),
         id: Math.floor(Math.random() * 1000000),
         title: noteName,
-        body: "",
+        body: String("New Note: " + new Date()),
         updated: new Date().toJSON()
     }
 
@@ -400,20 +400,18 @@ function fillEventList() {
 
                 document.getElementById("external-events").append(createNewEventDiv(allEvents[i].title, false))
                 if (!allEvents[i].isNote) {
-                addMenuItem(selector, allEvents[i].title, false)
+                    addMenuItem(selector, allEvents[i].title, false)
 
-                Calendar.addEvent({
-                    title: allEvents[i].title,
-                    start: new Date(allEvents[i].start),
-                    end: new Date(allEvents[i].end),
-                    allDay: (new Date(allEvents[i].start).toTimeString() === new Date(allEvents[i].end).toTimeString())
-                })
-            }
+                    Calendar.addEvent({
+                        title: allEvents[i].title,
+                        start: new Date(allEvents[i].start),
+                        end: new Date(allEvents[i].end),
+                        allDay: (new Date(allEvents[i].start).toTimeString() === new Date(allEvents[i].end).toTimeString())
+                    })
+                }
             }
         }
     }
-}
-
-xhttp.open("POST", "http://localhost:8080/fillevents", true)
-xhttp.send(sessionStorage.getItem("planner-username"))
+    xhttp.open("POST", "http://localhost:8080/fillevents", true)
+    xhttp.send(sessionStorage.getItem("planner-username"))
 }
