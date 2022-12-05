@@ -18,11 +18,14 @@ const userModel = mongoose.model('LoginInfo', new Schema({
     authenticateTime: String
 }), 'LoginInfo');
 
+
 const eventModel = mongoose.model('Events', new Schema({
+
     username: String,
     title: String,
     start: String,
     end: String,
+
 }), 'Events');
 
 
@@ -33,6 +36,7 @@ const notesModel = mongoose.model('notes', new Schema({
     body: String,
     updated: Date,
 }), 'notes');
+
 
 let app = express()
 
@@ -109,6 +113,19 @@ app.post('/login', (req, res) => {
     })
 })
 
+
+app.get('/eventsAmount/:user', (req, res) => {
+    const username = req.params.user
+
+    eventModel.find({'username':username}, function(err, data){
+        if (err) return
+
+        res.status(200).send(`${data.length}`)
+    })
+})
+
+app.get('/calendar', (req, res) => {
+
 app.post('/fillnotes', (req, res) => {
     const username = req.body
     notesModel.find({ "username": username }, (err, ent) => {
@@ -116,6 +133,7 @@ app.post('/fillnotes', (req, res) => {
         res.status(200).send(JSON.stringify(ent))
     })
 })
+
 
 app.post('/fillevents', (req, res) => {
     const username = req.body
