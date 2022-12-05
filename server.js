@@ -18,7 +18,6 @@ const noteSchema = new mongoose.Schema({
 })
 
 // Model for 'LoginInfo' table
-var userModel = mongoose.model('LoginInfo', new Schema({
 mongoose.connect(process.env.DATABASE)
 
 //model for 'LoginInfo' table
@@ -100,19 +99,19 @@ app.post('/signUp', (req, res) => {
             res.status(200).send(user.userName)
         }
         else {
-                    res.status(401).send("User already exists");
+            res.status(401).send("User already exists");
         }
     })
 })
 
 // Retrieve list of notes from the DB and return to page
-app.get('/get_notes', async function (req, res) {
+app.get('/get_notes/:user', async function (req, res) {
     // Get all notes in the database then send them back
-    res.status(200).send(await getNotes())
+    res.status(200).send(await getNotes(req.params.user))
 })
 
-function getNotes() { // Helper function to get all notes stored in the database
-    const notes = NotesM.find()
+function getNotes(user) { // Helper function to get all notes stored in the database
+    const notes = NotesM.find({ username: user })
     return notes
 }
 
@@ -122,16 +121,17 @@ app.post('/save_note', async function (req, res) {
     const note = JSON.parse(req.body)
 
     // Check if note exists in collection. Update if it exists and add to collection if it doesn't
-    const existingNote = await NotesM.findOne({id: note.id})
+    const existingNote = await NotesM.findOne({ id: note.id })
     if (existingNote) { // Note already exists
-        
+
         existingNote.title = note.title
         existingNote.body = note.body
         existingNote.updated = note.updated
         await existingNote.save()
     } else { // Create new note
-        
+
         const newNote = await NotesM.create({
+            username: note.username,
             id: note.id,
             title: note.title,
             body: note.body,
@@ -143,10 +143,10 @@ app.post('/save_note', async function (req, res) {
 })
 
 app.post('/delete_note', async function (req, res) {
-    
+
     const note = JSON.parse(req.body)
-    const conf = await NotesM.findOneAndDelete({id: note.id})
-    
+    const conf = await NotesM.findOneAndDelete({ id: note.id })
+
     res.status(200).send("Note deleted!")
 })
 
@@ -180,11 +180,11 @@ app.post('/login', (req, res) => {
 app.get('/eventsAmount/:user', (req, res) => {
     const username = req.params.user
 
-    eventModel.find({'username':username}, function(err, data){
+    eventModel.find({ 'username': username }, function (err, data) {
         if (err) return
         let eventsLength = 0;
-        for(let i = 0; i < data.length; i++){
-            if(!data[i].isNote) length += 1
+        for (let i = 0; i < data.length; i++) {
+            if (!data[i].isNote) length += 1
         }
         res.status(200).send(`${eventsLength}`)
     })
@@ -193,7 +193,7 @@ app.get('/eventsAmount/:user', (req, res) => {
 app.get('/notesAmount/:user', (req, res) => {
     const username = req.params.user
 
-    notesModel.find({'username':username}, function(err, data){
+    notesModel.find({ 'username': username }, function (err, data) {
         if (err) return
 
         res.status(200).send(`${data.length}`)
@@ -232,13 +232,13 @@ app.post('/createnoteevent', (req, res) => {
 
 app.post('/createvent', (req, res) => {
     const request = JSON.parse(req.body)
-    
+
 
     eventModel.find({ "username": request.username }, (err, ent) => {
-        for(let i = 0; i < ent.length; i++){
-            
-            if(ent[i].username === request.username && ent[i].title === request.title){
-                eventModel.collection.findOneAndUpdate({"username":request.username, "title":request.title}, {$set:{"start": request.start, "end":request.end}})
+        for (let i = 0; i < ent.length; i++) {
+
+            if (ent[i].username === request.username && ent[i].title === request.title) {
+                eventModel.collection.findOneAndUpdate({ "username": request.username, "title": request.title }, { $set: { "start": request.start, "end": request.end } })
                 return;
             }
         }
@@ -256,13 +256,13 @@ app.post('/createvent', (req, res) => {
 app.post('/deleteevent', (req, res) => {
     const request = JSON.parse(req.body)
 
-    eventModel.collection.findOneAndDelete({"username":request.username, "title":request.title})
+    eventModel.collection.findOneAndDelete({ "username": request.username, "title": request.title })
 })
 
 app.get('/calendar/:user', (req, res) => {
-    new Promise((resolve, reject)=> {
+    new Promise((resolve, reject) => {
         resolve(isAuthenticated(req.params.user));
-    }).then((value)=>{
+    }).then((value) => {
         if (value) {
             res.status(200).sendFile(path.join(__dirname, "/pages/calendar.html"))
         }
@@ -274,9 +274,9 @@ app.get('/calendar/:user', (req, res) => {
 
 app.get('/notes/:user', (req, res) => {
 
-    new Promise((resolve, reject)=> {
+    new Promise((resolve, reject) => {
         resolve(isAuthenticated(req.params.user));
-    }).then((value)=>{
+    }).then((value) => {
         if (value) {
             res.status(200).sendFile(path.join(__dirname, "/pages/notebook.html"))
         }

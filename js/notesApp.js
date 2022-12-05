@@ -73,7 +73,7 @@ export default class NotesApp {
             }
         }
         // Request the server for list of notes
-        xhttp.open("GET", "http://localhost:8080/get_notes", true)
+        xhttp.open("GET", `http://localhost:8080/get_notes/${sessionStorage.getItem('planner-username')}`, true)
         xhttp.send()
     }
 
