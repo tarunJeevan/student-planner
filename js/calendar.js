@@ -196,15 +196,9 @@ function removeContextMenu(element) {
     element.remove()
 }
 
-function completeEvent(info) {
-    if (!info.classNames.includes("completed")) {
-        info.setProp("classNames", info.classNames.concat(['completed']))
-    }
-    return false
-}
-
 function deleteEvent(event) {
     event.remove()
+    deleteEventFromDB(event.title)
     return false
 }
 
@@ -270,10 +264,10 @@ function getMenuInfo(menuName, info) {
 
     switch (menuName) {
         case "calendar":
-            menu.numItems = 2
+            menu.numItems = 1
             menu.numClassNames = 0
-            menu.itemNames = ["Complete", "Delete"]
-            menu.functionNames = [function () { completeEvent(info.event) }, function () { deleteEvent(info.event) }]
+            menu.itemNames = ["Delete"]
+            menu.functionNames = [function () { deleteEvent(info.event) }]
             menu.useParent = function (elem) {
                 if (elem.classList.contains("fc-event-title")) {
                     return true
@@ -302,20 +296,31 @@ function createNewEvent(atitle, astart, aend, aisnote) {
     xhttp.send(JSON.stringify(event))
 }
 
-function deleteEventFromDB() {
+function deleteEventFromDB(noteName) {
     const selector = document.getElementById("add-event-menu")
     const eventList = Calendar.getEvents()
     let atitle = ""
     let notesIndex = 0;
 
+    if(noteName){
+        atitle = noteName
+        const event = {
+            username: sessionStorage.getItem("planner-username"),
+            title: atitle
+        }
+    
+        const xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "http://localhost:8080/deleteevent", true)
+        xhttp.send(JSON.stringify(event))
+        return
+    }
+    
     for (let i = 0; i < selector.length; i++) {
         if (selector[i].value === "-2") {
             notesIndex = i
             break
         }
     }
-
-    console.log(notesIndex)
 
     if (!(selector[selector.selectedIndex].value === "-1" || selector[selector.selectedIndex].value === "-2" || selector[selector.selectedIndex].value === "-3" || selector[selector.selectedIndex].value === "-4") && selector.selectedIndex < notesIndex) {
         atitle = String(selector[selector.selectedIndex].value)
@@ -397,17 +402,16 @@ function fillEventList() {
                 option.value = allEvents[i].title
                 option.text = allEvents[i].title
 
-                document.getElementById("external-events").append(createNewEventDiv(allEvents[i].title, false))
                 if (!allEvents[i].isNote) {
                     addMenuItem(selector, allEvents[i].title, false)
-
+                    document.getElementById("external-events").append(createNewEventDiv(allEvents[i].title, false))
+                }
                     Calendar.addEvent({
                         title: allEvents[i].title,
                         start: new Date(allEvents[i].start),
                         end: new Date(allEvents[i].end),
                         allDay: (new Date(allEvents[i].start).toTimeString() === new Date(allEvents[i].end).toTimeString())
                     })
-                }
             }
         }
     }
